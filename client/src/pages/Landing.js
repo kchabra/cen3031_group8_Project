@@ -1,6 +1,6 @@
-// Landing.js
-import React from 'react';
+// home page
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Link } from 'react-router-dom';
 
 const Landing = () => {
   const currentYear = new Date().getFullYear(); // For the copyright year in the footer
@@ -17,13 +17,13 @@ const Landing = () => {
       <main className="flex-grow-1 d-flex justify-content-center align-items-center my-4">
         <div className="text-center">
           <div className="mb-3">
-            <button className="btn btn-info btn-lg px-4">About Us</button>
+            <Link to="/about" className="btn btn-info btn-lg px-4">About Us</Link>
           </div>
           <div className="mb-3">
-                <button className="btn btn-success btn-lg px-4">Login</button>
+                <Link to="/login" className="btn btn-success btn-lg px-4">Login</Link>
         </div>
           <div>
-            <button className="btn btn-primary btn-lg px-4">Create an Account</button>
+            <Link to="/signup" className="btn btn-primary btn-lg px-4">Create an Account</Link>
           </div>
         </div>
       </main>
