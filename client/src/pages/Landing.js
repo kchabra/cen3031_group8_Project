@@ -3,9 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 
 const Landing = () => {
-  const currentYear = new Date().getFullYear(); // For the copyright year in the footer
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="flex-grow-1">
       <header className="bg-primary text-white text-center p-5">
         <h1 className="display-4 mb-3">Welcome to Budget Buddy: Time to Save Big</h1>
         <p className="lead">
@@ -27,11 +26,7 @@ const Landing = () => {
           </div>
         </div>
       </main>
-      <footer className="bg-dark text-white text-center py-3 mt-auto">
-        <p>&copy; {currentYear} Budget Buddy. All Rights Reserved.</p>
-        <p>Authors: Desmond Arms, Jose Bohorquez, Krivi Chabra, and Bryan Gonzalez</p>
-      </footer>
-    </div>
+      </div>
   );
 };
 
