@@ -9,7 +9,7 @@ const Landing = () => {
       <header className="bg-primary text-white text-center p-5">
         <h1 className="display-4 mb-3">Welcome to Budget Buddy: Time to Save Big</h1>
         <p className="lead">
-          Track your spending, set budgets, and achieve your financial goals with Budget Buddy. 
+          Track your spending, set budgets, and achieve your financial goals with Budget Buddy.
           Categorize your spending, generate reports, and visualize your spending with our powerful tool. 
           It's time to save big with Budget Buddy.
         </p>
