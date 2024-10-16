@@ -84,17 +84,17 @@ const Signup = () => {
         <div className="mb-3">
                 <label htmlFor="email" className="form-label">Email <span className="text-danger">*</span></label>
                 <input type="email" name="email" id="email" className="form-control" value={form_data.email} onChange={handleChange} required />
-                {errors.email && <div className="text-danger">{errors.email}</div>}
+                {errors.email && <div className="text-danger" role="alert">{errors.email}</div>}
             </div>
             <div className="mb-3">
                 <label htmlFor="password" className="form-label">Password <span className="text-danger">*</span></label>
                 <input type="password" name="password" id="password" className="form-control" value={form_data.password} onChange={handleChange} required />
-                {errors.password && <div className="text-danger">{errors.password}</div>}
+                {errors.password && <div className="text-danger" role="alert">{errors.password}</div>}
             </div>
             <div className="mb-3">
                 <label htmlFor="confirmpassword" className="form-label">Confirm Password <span className="text-danger">*</span></label>
                 <input type="password" name="confirm_password" id="confirmpassword" className="form-control" value={form_data.confirm_password} onChange={handleChange} required />
-                {errors.confirm_password && <div className="text-danger">{errors.confirm_password}</div>}
+                {errors.confirm_password && <div className="text-danger" role="alert">{errors.confirm_password}</div>}
         </div>
             <button type="submit" className="btn btn-primary w-100" disabled={!isFormValid}>Create Account</button>
             </form>
