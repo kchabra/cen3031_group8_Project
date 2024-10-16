@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 const Signup = () => {
     const [form_data, setFormData] = useState({
-        first_name: '',
-        last_name: '',
         email: '',
         user_name: '',
         password: '',
@@ -14,16 +12,6 @@ const Signup = () => {
     const validateFields = (name, value) => {
         let form_errors = {...errors};
         switch(name) {
-            case 'first_name':
-                case 'last_name':
-                    const name_regex = /^[A-Za-z]+$/;
-                    if (!name_regex.test(value)) {
-                        form_errors[name] = "Name can only contain alphabetic characters.";
-                    }
-                    else {
-                        delete form_errors[name];
-                    }
-                    break;
                     case 'email':
                         const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         if (email_regex.test(value)) {
@@ -79,15 +67,6 @@ const Signup = () => {
         }));
         validateFields(name, value);
         };
-    const handleNameChange = (e) => {
-        const {name, value} = e.target;
-        const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
-        setFormData ({
-            ...form_data,
-            [name]: capitalizedValue,
-        });
-        validateFields(name, capitalizedValue);
-    };
     useEffect(() => {
         validateFields('password', form_data.password);
         validateFields('confirm_password', form_data.confirm_password);
@@ -104,16 +83,6 @@ const Signup = () => {
             <main className="container">
             <h1 className="bg-primary text-white text-center p-4">Sign Up</h1>
             <form className="bg-light p-5 rounded shadow" style={{ maxWidth: '500px', margin: 'auto' }}>
-            <div className="mb-3">
-                <label htmlFor="fname" className="form-label">First Name <span className="text-danger">*</span></label>
-                <input type="text" name="first_name" id="fname" className="form-control" value={form_data.first_name} onChange={handleNameChange} required/>
-                {errors.first_name && <div className="text-danger">{errors.first_name}</div>}
-            </div>
-            <div className="mb-3">
-                <label htmlFor="lname" className="form-label">Last Name <span className="text-danger">*</span></label>
-                <input type="text" name="last_name" id="lname" className="form-control" value={form_data.last_name} onChange={handleNameChange} required />
-                {errors.last_name && <div className="text-danger">{errors.last_name}</div>}
-            </div>
             <div className="mb-3">
                 <label htmlFor="email" className="form-label">Email <span className="text-danger">*</span></label>
                 <input type="email" name="email" id="email" className="form-control" value={form_data.email} onChange={handleChange} required />
