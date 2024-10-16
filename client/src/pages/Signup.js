@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
+
 const Signup = () => {
     const [form_data, setFormData] = useState({
         email: '',
@@ -14,7 +16,7 @@ const Signup = () => {
         switch(name) {
                     case 'email':
                         const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (email_regex.test(value)) {
+                        if (!email_regex.test(value)) {
                             form_errors.email = "Please enter a valid email address.";
                         }
                         else {
@@ -33,12 +35,8 @@ const Signup = () => {
 
             case 'password':
             const password_regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
-            const name_in_password = form_data.first_name && new RegExp(form_data.first_name, 'i').test(value) || form_data.last_name && new RegExp(form_data.last_name, 'i').test(value);
             if (!password_regex.test(value) || value.length < 8 || value.length > 20) {
                 form_errors.password = "Password must be 8-20 characters long, include one uppercase letter, one number, and one special symbol.";
-            }
-            else if (name_in_password) {
-                form_errors.password = "Password should not contain your first or last name.";
             }
             else {
                 delete form_errors.password;
@@ -76,14 +74,27 @@ const Signup = () => {
         const has_errors = Object.keys(errors).length > 0;
         setIsFormValid(is_form_complete && !has_errors);
     }, [form_data, errors]);
-    //handleSubmit function will go here to enter user info into the database
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:5000/add-user', {
+                email: form_data.email,
+                user_name: form_data.user_name,
+                password: form_data.password
+            });
+            console.log('User added:', response.data);
+            // redirect will occur here
+        } catch (error) {
+            console.error('Error adding user:', error);
+        }
+    };
 
     return (
         <div className="flex-grow-1 d-flex justify-content-center align-items-center">
             <main className="container">
             <h1 className="bg-primary text-white text-center p-4">Sign Up</h1>
-            <form className="bg-light p-5 rounded shadow" style={{ maxWidth: '500px', margin: 'auto' }}>
-            <div className="mb-3">
+            <form className="bg-light p-5 rounded shadow" style={{ maxWidth: '500px', margin: 'auto' }} onSubmit={handleSubmit}>
+        <div className="mb-3">
                 <label htmlFor="email" className="form-label">Email <span className="text-danger">*</span></label>
                 <input type="email" name="email" id="email" className="form-control" value={form_data.email} onChange={handleChange} required />
                 {errors.email && <div className="text-danger">{errors.email}</div>}
