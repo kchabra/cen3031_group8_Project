@@ -16,8 +16,8 @@ mongoose.connect(dbURI)
 app.get('/', (req, res) => {res.send("Welcome to the project!");});
 app.post('/signup', (req, res) => {
     console.log("Received request for signup:", req.body);
-    const { email, username, password } = req.body;
-    if (!email || !username || !password) {
+    const { email, password } = req.body;
+    if (!email || !password) {
         return res.status(400).json({ error: "All fields are required." });
     }
     User.findOne({ email: email }).then(user => {
@@ -27,7 +27,6 @@ app.post('/signup', (req, res) => {
         else {
             const newUser = new User({
                 email,
-                username,
                 password,
             });
             newUser.save().then((result) => res.status(201).json(result)).catch((err) => {

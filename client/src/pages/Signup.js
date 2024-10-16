@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 const Signup = () => {
     const [form_data, setFormData] = useState({
         email: '',
-        username: '',
         password: '',
         confirm_password: ''
     });
@@ -25,15 +24,6 @@ const Signup = () => {
                             delete form_errors.email;
                         }
                         break;
-            case 'username':
-                const username_regex = /^[a-zA-Z0-9_]+$/;
-                if (!username_regex.test(value)) {
-                    form_errors.username = "Username can only contain letters, numbers, and underscores.";
-            }
-                else {
-                    delete form_errors.username;
-                }
-                break;
 
             case 'password':
             const password_regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
@@ -77,11 +67,10 @@ const Signup = () => {
         try {
             const response = await axios.post('http://localhost:5000/signup', {
                 email: form_data.email,
-                username: form_data.username,
                 password: form_data.password
             });
             console.log('User added:', response.data);
-            navigate('/profile');
+            navigate('/login');
         } catch (error) {
             console.error('Error adding user:', error.response ? error.response.data : error.message);
         }
@@ -96,11 +85,6 @@ const Signup = () => {
                 <label htmlFor="email" className="form-label">Email <span className="text-danger">*</span></label>
                 <input type="email" name="email" id="email" className="form-control" value={form_data.email} onChange={handleChange} required />
                 {errors.email && <div className="text-danger">{errors.email}</div>}
-            </div>
-            <div className="mb-3">
-                <label htmlFor="uname" className="form-label">User Name <span className="text-danger">*</span></label>
-                <input type="text" name="username" id="uname" className="form-control" value={form_data.username} onChange={handleChange} required />
-                {errors.username && <div className="text-danger">{errors.username}</div>}
             </div>
             <div className="mb-3">
                 <label htmlFor="password" className="form-label">Password <span className="text-danger">*</span></label>
