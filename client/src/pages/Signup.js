@@ -5,7 +5,7 @@ import axios from 'axios';
 const Signup = () => {
     const [form_data, setFormData] = useState({
         email: '',
-        user_name: '',
+        username: '',
         password: '',
         confirm_password: ''
     });
@@ -23,13 +23,13 @@ const Signup = () => {
                             delete form_errors.email;
                         }
                         break;
-            case 'user_name':
+            case 'username':
                 const username_regex = /^[a-zA-Z0-9_]+$/;
                 if (!username_regex.test(value)) {
-                    form_errors.user_name = "Username can only contain letters, numbers, and underscores.";
+                    form_errors.username = "Username can only contain letters, numbers, and underscores.";
             }
                 else {
-                    delete form_errors.user_name;
+                    delete form_errors.username;
                 }
                 break;
 
@@ -65,10 +65,6 @@ const Signup = () => {
         }));
         validateFields(name, value);
         };
-    useEffect(() => {
-        validateFields('password', form_data.password);
-        validateFields('confirm_password', form_data.confirm_password);
-    }, [form_data.password, form_data.confirm_password]);
         useEffect(() => {
         const is_form_complete = Object.values(form_data).every((field) => field !== '');
         const has_errors = Object.keys(errors).length > 0;
@@ -77,15 +73,15 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/add-user', {
+            const response = await axios.post('http://localhost:5000/signup', {
                 email: form_data.email,
-                user_name: form_data.user_name,
+                username: form_data.username,
                 password: form_data.password
             });
             console.log('User added:', response.data);
             // redirect will occur here
         } catch (error) {
-            console.error('Error adding user:', error);
+            console.error('Error adding user:', error.response ? error.response.data : error.message);
         }
     };
 
@@ -101,8 +97,8 @@ const Signup = () => {
             </div>
             <div className="mb-3">
                 <label htmlFor="uname" className="form-label">User Name <span className="text-danger">*</span></label>
-                <input type="text" name="user_name" id="uname" className="form-control" value={form_data.user_name} onChange={handleChange} required />
-                {errors.user_name && <div className="text-danger">{errors.user_name}</div>}
+                <input type="text" name="username" id="uname" className="form-control" value={form_data.username} onChange={handleChange} required />
+                {errors.username && <div className="text-danger">{errors.username}</div>}
             </div>
             <div className="mb-3">
                 <label htmlFor="password" className="form-label">Password <span className="text-danger">*</span></label>

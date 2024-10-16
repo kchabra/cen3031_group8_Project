@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const user = require('./users');
+const User = require('./users');
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(cors());
@@ -15,7 +15,8 @@ mongoose.connect(dbURI)
 
 app.get('/', (req, res) => {res.send("Welcome to the project!");});
 app.post('/signup', (req, res) => {
-    const { email, user_name, password } = req.body;
+    console.log("Received request for signup:", req.body);
+    const { email, username, password } = req.body;
     if (!email || !username || !password) {
         return res.status(400).json({ error: "All fields are required." });
     }
@@ -26,26 +27,14 @@ app.post('/signup', (req, res) => {
         else {
             const newUser = new User({
                 email,
-                user_name,
+                username,
                 password,
             });
-            newUser.save().then((result) => res.status(201).json(result)).catch((err) => res.status(500).json({ error: "Failed to create user."}));
+            newUser.save().then((result) => res.status(201).json(result)).catch((err) => {
+                console.error("Error saving user:", err);
+                res.status(500).json({ error: "Failed to create user."});
+            });
         }
     }).catch((err) => res.status(500).json({ error: "Error checking existing user." }));
 });
 app.listen(PORT, () => {console.log(`Server running on port ${PORT}`);});
-
-app.get('add-user',(req,res) =>{
-    const User = new user({
-        email:  'abc123@gmail.com',
-        username: 'a1b2c3',
-        password: '123456'
-    });
-    User.save()
-        .then((result) =>{
-        res.send(result)
-    })
-        .catch((err) => {
-            console.log(err);
-        })
-})
