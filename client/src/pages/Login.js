@@ -9,12 +9,12 @@ const Login = () => {
             </h1>
             <form className="bg-light p-4 rounded shadow" style={{ width: '300px' }}>
             <div className="mb-3">
-                <label htmlFor="Uname">Username: </label>
+                <label htmlFor="Uname" classname="form-label">Username: </label>
                 <input type="text" id="Uname" name="Uname" className="form-control" 
                             required/>
                 </div>
                 <div className="mb-3">
-                <label htmlFor="Pass">Password: </label>
+                <label htmlFor="Pass" classname="form-label">Password: </label>
                 <input type="text" id="Pass" name="Pass" className="form-control" required/>
                 </div>
                 <button type="submit" className="btn btn-primary w-100">Login</button>
