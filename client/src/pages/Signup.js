@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
     const [form_data, setFormData] = useState({
@@ -11,6 +12,7 @@ const Signup = () => {
     });
     const [isFormValid, setIsFormValid] = useState(false);
     const [errors, setErrors] = useState({});
+    const navigate = useNavigate();
     const validateFields = (name, value) => {
         let form_errors = {...errors};
         switch(name) {
@@ -79,7 +81,7 @@ const Signup = () => {
                 password: form_data.password
             });
             console.log('User added:', response.data);
-            // redirect will occur here
+            navigate('/profile');
         } catch (error) {
             console.error('Error adding user:', error.response ? error.response.data : error.message);
         }
