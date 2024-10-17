@@ -8,6 +8,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [error_message, setErrorMessage] = useState('');
+    const [password_is_hidden, setPasswordVisibility] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -22,9 +23,11 @@ const Login = () => {
             }
         }
         catch (error) {
-            console.error('Login error', error);
             setErrorMessage('Login error: Invalid email or password.');
         }
+    };
+    const togglePasswordVisibility = () => {
+        setPasswordVisibility((prev) => !prev);
     };
 
     return (
@@ -40,7 +43,8 @@ const Login = () => {
                 </div>
                 <div className="mb-3">
                 <label htmlFor="password" className="form-label">Password: </label>
-                <input type="password" id="password" name="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required/>
+                <input type={password_is_hidden ? 'text' : 'password'} id="password" name="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required/>
+                <button type="button" className="btn btn-outline-secondary" onClick={togglePasswordVisibility}>{password_is_hidden ? 'Hide' : 'Show'} Password</button>
                 </div>
                 <div className="form-check mb-3">
                     <input type="checkbox" id="remember-me" className="form-check-input" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}/>
