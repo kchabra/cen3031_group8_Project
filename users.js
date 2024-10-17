@@ -14,15 +14,15 @@ const userSchema = new Schema({
     profile: {
         first_name: {//require for onboarding
             type: String,
-            required: true
+            default: ""
         },
         last_name: { //require for onboarding
             type: String,
-            required: true
+            default: ""
         },
-        current_amount: {//Current balance; required for onboarding
+        current_amount: {//Current balance; required for onboarding; set to 0 for all new users by default
             type: Number,
-            required: true
+            default: 0
         },
         monthly_budget: {//How much they should spend per month; default is 0; optional for onboarding
             type: Number,
@@ -60,7 +60,7 @@ const userSchema = new Schema({
                 required: true
             },
             goal_Profress_amount: {//Progress amount towards goal. Will start at 0.
-                type: number,
+                type: Number,
                 default: 0
             },
             due_date: {//Optional if the user wishes to supply this
