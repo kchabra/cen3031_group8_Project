@@ -6,14 +6,14 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [remember_me, setRememberMe] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
     const [error_message, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/login', {email, password, remember_me});
+            const response = await axios.post('http://localhost:5000/login', {email, password, rememberMe});
             if (response.status === 200) {
                 navigate('/profile');
             }
@@ -43,7 +43,7 @@ const Login = () => {
                 <input type="password" id="password" name="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required/>
                 </div>
                 <div className="form-check mb-3">
-                    <input type="checkbox" id="remember-me" className="form-check-input" hecked={remember_me} onChange={(e) => setRememberMe(e.target.checked)}/>
+                    <input type="checkbox" id="remember-me" className="form-check-input" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}/>
                     <label htmlFor="remember-me" className="form-check-label">Remember Me</label>
                 </div>
                 {error_message && (<div className="alert alert-danger" role="alert">{error_message}</div>)}
