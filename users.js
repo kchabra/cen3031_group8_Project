@@ -20,14 +20,20 @@ const userSchema = new Schema({
             type: String,
             default: ""
         },
-        current_amount: {//Current balance; required for onboarding; set to 0 for all new users by default
+        current_balance: {//Current balance; required for onboarding; set to 0 for all new users by default
             type: Number,
             default: 0
         },
-        monthly_budget: {//How much they should spend per month; default is 0; optional for onboarding
+        budget: { //object to hold info about the budget; amount and when it was set.
+        amount: {//How much they should spend per month; default is 0; optional for onboarding
             type: Number,
             default: 0
         },
+        last_set: {
+            type: Date,
+            default: Date.now
+        }
+    },
         expenses: [{ //object array to hold expenses
             category: {
                 type: String,
