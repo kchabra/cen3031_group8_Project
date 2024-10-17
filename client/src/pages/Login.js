@@ -33,18 +33,18 @@ const Login = () => {
             <h1 className="bg-success text-white text-center p-5">
                 LOGIN
             </h1>
-            <form className="bg-light p-4 rounded shadow" style={{ width: '300px' }} onSubmit={handleSubmit}>
+            <form className="bg-light p-5 rounded shadow" style={{ maxWidth: '500px', margin: 'auto' }} onSubmit={handleSubmit}>
             <div className="mb-3">
-                <label htmlFor="email" classname="form-label">Email: </label>
-                <input type="email" id="email" name="email" className="form-control" value={email} onChange={(e)=> setEmail(e.target.value)} required/>
+                <label htmlFor="email" className="form-label">Email: </label>
+                <input type="email" id="email" name="email" className="form-control" value={email} onChange={(e)=> setEmail(e.target.value)} required autoFocus/>
                 </div>
                 <div className="mb-3">
-                <label htmlFor="password" classname="form-label">Password: </label>
+                <label htmlFor="password" className="form-label">Password: </label>
                 <input type="password" id="password" name="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required/>
                 </div>
                 <div className="form-check mb-3">
                     <input type="checkbox" id="remember-me" className="form-check-input" hecked={remember_me} onChange={(e) => setRememberMe(e.target.checked)}/>
-                    <label htmlFor="remember-me" className="form-check-label">remember Me</label>
+                    <label htmlFor="remember-me" className="form-check-label">Remember Me</label>
                 </div>
                 {error_message && (<div className="alert alert-danger" role="alert">{error_message}</div>)}
                 <button type="submit" className="btn btn-primary w-100">Login</button>

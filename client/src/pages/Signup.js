@@ -83,7 +83,7 @@ const Signup = () => {
             <form className="bg-light p-5 rounded shadow" style={{ maxWidth: '500px', margin: 'auto' }} onSubmit={handleSubmit}>
         <div className="mb-3">
                 <label htmlFor="email" className="form-label">Email <span className="text-danger">*</span></label>
-                <input type="email" name="email" id="email" className="form-control" value={form_data.email} onChange={handleChange} required />
+                <input type="email" name="email" id="email" className="form-control" value={form_data.email} onChange={handleChange} required autoFocus/>
                 {errors.email && <div className="text-danger" role="alert">{errors.email}</div>}
             </div>
             <div className="mb-3">
