@@ -8,6 +8,7 @@ const Profile_component = () => {
     const [last_name, setLastName] = useState("");
     const [current_balance, setCurrentBalance] = useState(0);
     const [monthly_budget, setMonthlyBudget] = useState(0);
+    const [name_error, setNameError] = useState("");
     useEffect(() => {
         fetch('http://localhost:5000/profile', {
             method: 'GET',
@@ -24,6 +25,18 @@ const Profile_component = () => {
 
         });
     }, []);
+    const handleNameChange = (setter) => (e) => {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z]*$/; // Only alphabetic characters
+        if (regex.test(value)) {
+            const capatilized_value = value.charAt(0).toUpperCase() + value.slice(1); //create and force the input box to have new capatilized value
+            setter(capatilized_value);
+            setNameError("");
+        }
+        else {
+            setNameError("Names can only contain alphabet characters.");
+        }
+    };
     const handleOnboardingSubmit = async (e) => {
         e.preventDefault();
         //Onboarding data to be sent to backend.
@@ -79,7 +92,7 @@ return (
                         id="first-name"
                         className='form-control'
                         value={first_name}
-                        onChange={(e) => setFirstName(e.target.value)}
+                        onChange={handleNameChange(setFirstName)}
                         required
                         autoFocus
                         />
@@ -91,9 +104,10 @@ return (
                         id="last-name"
                         className='form-control'
                         value={last_name}
-                        onChange={(e) => setLastName(e.target.value)}
+                        onChange={handleNameChange(setLastName)}
                         required
                         />
+                        {name_error && <p className="text-danger" role="alert">{name_error}</p>}
                     </div>
                     <div className='mb3'>
                         <label htmlFor='current-balance' className='form-label'>What is your current balance?</label>
@@ -105,6 +119,7 @@ return (
                         onChange={(e) => setCurrentBalance(e.target.value)}
                         required
                         />
+                        
                     </div>
                     <div className='mb3'>
                         <label htmlFor='monthly-budget' className='form-label'>What will be your budget for this month?</label>

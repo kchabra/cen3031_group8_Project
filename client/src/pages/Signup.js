@@ -73,6 +73,7 @@ const Signup = () => {
             navigate('/login');
         } catch (error) {
             console.error('Error adding user:', error.response ? error.response.data : error.message);
+            setErrors({ signup: "Error signing up. Please try again." });
         }
     };
 
