@@ -65,7 +65,8 @@ app.post('/login', (req, res) => {
             if (result) {
                 const session_options = {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production'
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'Strict'//Prevents cookies from being sent from different websites.
                 };
                 if (rememberMe) {
                     session_options.maxAge = 14 * 24 * 60 * 60 * 1000;
@@ -94,6 +95,32 @@ app.get('/profile', (req, res) => {
         res.status(200).json({ profile: user.profile });
     }).catch(err => {
         res.status(500).json({ message: 'Error fetching profile', err });
+    });
+});
+
+app.post('/onboarding', (req, res) => {
+    const {first_name, last_name, current_balance, budget} = req.body;
+    const user_email = req.cookies.user_email;
+    if (!user_email) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+    User.findOneAndUpdate({email: user_email}, {
+        profile: {
+            first_name,
+            last_name,
+            current_balance,
+            budget: {
+                amount: budget.amount,
+                last_set: Date.now()
+            }
+        }
+    }, {new: true}).then((updated_user) => {
+        if (!updated_user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ message: 'Profile updated successfully' });
+    }).catch(err => {
+        res.status(500).json({ message: 'Error updating profile', err });
     });
 });
 app.listen(PORT, () => {console.log(`Server running on port ${PORT}`);});

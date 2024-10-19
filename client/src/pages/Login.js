@@ -14,7 +14,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/login', {email, password, rememberMe});
+            const response = await axios.post('http://localhost:5000/login', {email, password, rememberMe}, { withCredentials: true });
             if (response.status === 200) {
                 navigate('/profile');
             }
