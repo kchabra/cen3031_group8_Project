@@ -8,6 +8,7 @@ const Profile_component = () => {
     const [last_name, setLastName] = useState("");
     const [current_balance, setCurrentBalance] = useState(0);
     const [monthly_budget, setMonthlyBudget] = useState(0);
+    const [new_monthly_budget, resetMonthlyBudget] = useState(0);
     const [name_error, setNameError] = useState("");
     useEffect(() => {
         fetch('http://localhost:5000/profile', {
@@ -79,6 +80,22 @@ return (
              profile.first_name ? (//Profile has first name; display the profile. You might want to use a separate component that you would insert below or you can add the whole profile below.
                 <main>
                     <h1>Welcome, {profile.first_name}!</h1>
+                    <h2>Your current balance is ${current_balance}</h2>
+                    <h2>Your montly budget is set to ${monthly_budget}</h2>
+                    <div className='reset budget'>
+                        <label htmlFor='monthly-budget' className='form-label'>What will be your budget for this month?</label>
+                        <input
+                        type="number"
+                        id='monthly-budget'
+                        className='form-control'
+                        value={new_monthly_budget}
+                        onChange={(e) => resetMonthlyBudget(e.target.value)}
+                        required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-primary w-100" 
+                    onClick={() => setMonthlyBudget(new_monthly_budget)}>
+                    Update budget</button>
                     <p>More updates are coming soon.</p>
                 </main>
              ) : (//First name not present. Onboarding is below.
