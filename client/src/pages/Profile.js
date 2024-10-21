@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Alert } from 'react';
 
 const Profile_component = () => {
     const [profile, setProfile] = useState(null);
@@ -11,6 +11,11 @@ const Profile_component = () => {
     const [new_monthly_budget, resetMonthlyBudget] = useState(0);
     const [name_error, setNameError] = useState("");
     const [new_income, addToBalance] = useState(0);
+    const [expense, addExpense] = useState(0);
+    const [category, enterCategory] = useState("");
+    const [amount, enterAmount] = useState(0);
+    const [description, enterDescription] = useState("");   
+
     useEffect(() => {
         fetch('http://localhost:5000/profile', {
             method: 'GET',
@@ -84,7 +89,7 @@ return (
                     <h2>Your current balance is ${current_balance}</h2>
                     <h2>Your montly budget is set to ${monthly_budget}</h2>
                     <div className='reset budget'>
-                        <label htmlFor='monthly-budget' className='update-value'>What will be your new budget for this month?</label>
+                        <label htmlFor='monthly-budget' className='update-value'>What will be your new budget for this month? $</label>
                         <input
                         type="number"
                         id='monthly-budget'
@@ -97,8 +102,9 @@ return (
                     <button type="submit" className="btn btn-primary w-100" 
                     onClick={() => setMonthlyBudget(new_monthly_budget)}>
                     Update budget</button>
+
                     <div className='Add to balance'>
-                        <label htmlFor='current-balance' className='update-value'>Add to balance</label>
+                        <label htmlFor='current-balance' className='update-value'>Add to balance $</label>
                         <input
                         type="number"
                         id='current-balance'
@@ -111,6 +117,39 @@ return (
                     <button type="submit" className="btn btn-primary w-100" 
                     onClick={() => setCurrentBalance(parseFloat(current_balance) + parseFloat(new_income))}>
                     Add income</button>
+
+                    <div className='Enter expense'>
+                        <label htmlFor='expense' className='update-value'>Category: </label>
+                        <input
+                        type="text"
+                        id='category'
+                        className='add-expense'
+                        value={category}
+                        onChange={(e) => enterCategory(e.target.value)}
+                        required
+                        />
+                        <label htmlFor='expense' className='update-value'>amount $</label>
+                        <input
+                        type="number"
+                        id='amount'
+                        className='add-expense'
+                        value={amount}
+                        onChange={(e) => enterAmount(e.target.value)}
+                        required
+                        />
+                        <label htmlFor='expense' className='update-value'>description: </label>
+                        <input
+                        type="text"
+                        id='description'
+                        className='add-expense'
+                        value={description}
+                        onChange={(e) => enterDescription(e.target.value)}
+                        required
+                        />
+                    </div>
+                    <button type="submit" className="enter expense" 
+                    onClick={() => ('This will do nothing right now')}>
+                    Enter expense</button>
                     <p>More updates are coming soon.</p>
                 </main>
              ) : (//First name not present. Onboarding is below.
