@@ -10,6 +10,7 @@ const Profile_component = () => {
     const [monthly_budget, setMonthlyBudget] = useState(0);
     const [new_monthly_budget, resetMonthlyBudget] = useState(0);
     const [name_error, setNameError] = useState("");
+    const [new_income, addToBalance] = useState(0);
     useEffect(() => {
         fetch('http://localhost:5000/profile', {
             method: 'GET',
@@ -83,11 +84,11 @@ return (
                     <h2>Your current balance is ${current_balance}</h2>
                     <h2>Your montly budget is set to ${monthly_budget}</h2>
                     <div className='reset budget'>
-                        <label htmlFor='monthly-budget' className='form-label'>What will be your budget for this month?</label>
+                        <label htmlFor='monthly-budget' className='update-value'>What will be your new budget for this month?</label>
                         <input
                         type="number"
                         id='monthly-budget'
-                        className='form-control'
+                        className='update-value'
                         value={new_monthly_budget}
                         onChange={(e) => resetMonthlyBudget(e.target.value)}
                         required
@@ -96,6 +97,20 @@ return (
                     <button type="submit" className="btn btn-primary w-100" 
                     onClick={() => setMonthlyBudget(new_monthly_budget)}>
                     Update budget</button>
+                    <div className='Add to balance'>
+                        <label htmlFor='current-balance' className='update-value'>Add to balance</label>
+                        <input
+                        type="number"
+                        id='current-balance'
+                        className='update-value'
+                        value={new_income}
+                        onChange={(e) => addToBalance(e.target.value)}
+                        required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-primary w-100" 
+                    onClick={() => setCurrentBalance(parseFloat(current_balance) + parseFloat(new_income))}>
+                    Add income</button>
                     <p>More updates are coming soon.</p>
                 </main>
              ) : (//First name not present. Onboarding is below.
