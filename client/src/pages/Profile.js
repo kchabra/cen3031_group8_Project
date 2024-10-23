@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useEffect, useState, Alert } from 'react';
+import { useEffect, useState} from 'react';
+import { Link } from 'react-router-dom';
 
 const Profile_component = () => {
     const [profile, setProfile] = useState(null);
@@ -8,13 +9,7 @@ const Profile_component = () => {
     const [last_name, setLastName] = useState("");
     const [current_balance, setCurrentBalance] = useState(0);
     const [monthly_budget, setMonthlyBudget] = useState(0);
-    const [new_monthly_budget, resetMonthlyBudget] = useState(0);
     const [name_error, setNameError] = useState("");
-    const [new_income, addToBalance] = useState(0);
-    const [expense, addExpense] = useState(0);
-    const [category, enterCategory] = useState("");
-    const [amount, enterAmount] = useState(0);
-    const [description, enterDescription] = useState("");   
 
     useEffect(() => {
         fetch('http://localhost:5000/profile', {
@@ -78,81 +73,69 @@ const Profile_component = () => {
     }
 };
 return (
-    <div className="container">
+    <div className="container-fluid">
             {/*This page will be based on conditions. If an error is present, the error will display. If there is no first name, the onboarding page will display. Otherwise the profile will display.*/}
-            {error ? (//There is an error
-                <p className="text-danger">{error}</p>
-            ) : profile ? (//No error; profile data is present.
-             profile.first_name ? (//Profile has first name; display the profile. You might want to use a separate component that you would insert below or you can add the whole profile below.
-                <main>
-                    <h1>Welcome, {profile.first_name}!</h1>
-                    <h2>Your current balance is ${current_balance}</h2>
-                    <h2>Your montly budget is set to ${monthly_budget}</h2>
-                    <div className='reset budget'>
-                        <label htmlFor='monthly-budget' className='update-value'>What will be your new budget for this month? $</label>
-                        <input
-                        type="number"
-                        id='monthly-budget'
-                        className='update-value'
-                        value={new_monthly_budget}
-                        onChange={(e) => resetMonthlyBudget(e.target.value)}
-                        required
-                        />
+            {error && 
+                <p className="text-danger">{error}</p>}
+            {profile ? (//No error; profile data is present.
+             profile.first_name ? (//Profile has first name; display the profile.
+                    <div className="row">
+                        {/* Left navigation */}
+                        <nav className="col-md-2 bg-light sidebar">
+                        <div className="position-sticky">
+                        <ul className="nav flex-column">
+                        <li className="nav-item">
+                            <Link to="/add-expense" className="nav-link">Add Expense or Update Balance</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/goals" className="nav-link">View or Add Goals</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/update-profile" className="nav-link">Update Profile</Link>
+                        </li>
+                        </ul>
+                        </div>
+                        </nav>
+                        {/* Main content */}
+                        <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                        <header className="d-flex justify-content-between align-items-center py-3 mb-4 border-bottom">
+                            <div>
+                            <h1>Welcome, {profile.first_name}!</h1>
+                            <h2>Current balance: ${profile.current_balance}</h2>
+                            <h2>Monthly budget: ${profile.budget.amount}</h2>
+                            </div>
+                            <button className="btn btn-outline-danger">Logout</button>
+                        </header>
+                        {/* Expenses table or empty state */}
+                        <section>
+                            {profile.expenses.length === 0 ? (//No expenses; show empty state.
+                            <p>Oh dear, no transactions to show. Click the "add Expense or Update Balance" button to get started.</p>
+                            ) : (//Transactions exists; show table.
+                                <table className="table">
+                                <thead>
+                                <tr>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {profile.expenses.map((expense, index) => (
+                                    <tr key={index}>
+                                    <td>{expense.category}</td>
+                                    <td>{expense.description}</td>
+                                    <td>${expense.amount}</td>
+                                    <td>{new Date(expense.date).toLocaleDateString()}</td>
+                                    </tr>
+                                    ))}
+                                    </tbody>
+                                    </table>
+                            )}
+                        </section>
+                        </main>
                     </div>
-                    <button type="submit" className="btn btn-primary w-100" 
-                    onClick={() => setMonthlyBudget(new_monthly_budget)}>
-                    Update budget</button>
-
-                    <div className='Add to balance'>
-                        <label htmlFor='current-balance' className='update-value'>Add to balance $</label>
-                        <input
-                        type="number"
-                        id='current-balance'
-                        className='update-value'
-                        value={new_income}
-                        onChange={(e) => addToBalance(e.target.value)}
-                        required
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary w-100" 
-                    onClick={() => setCurrentBalance(parseFloat(current_balance) + parseFloat(new_income))}>
-                    Add income</button>
-
-                    <div className='Enter expense'>
-                        <label htmlFor='expense' className='update-value'>Category: </label>
-                        <input
-                        type="text"
-                        id='category'
-                        className='add-expense'
-                        value={category}
-                        onChange={(e) => enterCategory(e.target.value)}
-                        required
-                        />
-                        <label htmlFor='expense' className='update-value'>amount $</label>
-                        <input
-                        type="number"
-                        id='amount'
-                        className='add-expense'
-                        value={amount}
-                        onChange={(e) => enterAmount(e.target.value)}
-                        required
-                        />
-                        <label htmlFor='expense' className='update-value'>description: </label>
-                        <input
-                        type="text"
-                        id='description'
-                        className='add-expense'
-                        value={description}
-                        onChange={(e) => enterDescription(e.target.value)}
-                        required
-                        />
-                    </div>
-                    <button type="submit" className="enter expense" 
-                    onClick={() => ('This will do nothing right now')}>
-                    Enter expense</button>
-                    <p>More updates are coming soon.</p>
-                </main>
-             ) : (//First name not present. Onboarding is below.
+             ) : ( //First name not present. Onboarding is below.
                 <main className="mt-5">
                     <h1>Welcome! Let's get started with your profile so you can start saving big.</h1>
                     <form className="bg-light p-4 rounded shadow" onSubmit={handleOnboardingSubmit}>
@@ -168,7 +151,7 @@ return (
                         autoFocus
                         />
                     </div>
-                    <div className='mb3'>
+                    <div className='mb-3'>
                         <label htmlFor='last-name' className='form-label'>Last Name</label>
                         <input
                         type="text"
@@ -180,7 +163,7 @@ return (
                         />
                         {name_error && <p className="text-danger" role="alert">{name_error}</p>}
                     </div>
-                    <div className='mb3'>
+                    <div className='mb-3'>
                         <label htmlFor='current-balance' className='form-label'>What is your current balance?</label>
                         <input
                         type="number"
@@ -192,7 +175,7 @@ return (
                         />
                         
                     </div>
-                    <div className='mb3'>
+                    <div className='mb-3'>
                         <label htmlFor='monthly-budget' className='form-label'>What will be your budget for this month?</label>
                         <input
                         type="number"
