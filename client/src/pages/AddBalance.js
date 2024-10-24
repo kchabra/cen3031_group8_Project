@@ -100,6 +100,7 @@ return (
                     setSelectedBalance(selected);
                     setShowNewBalanceInput(selected === "add-new");
                 }}
+                required
                 autoFocus
                 >
                     <option value="">-- Select Balance --</option>

@@ -67,6 +67,14 @@ const userSchema = new Schema({
                 type: String,
                 required: true
             },
+            category: {//What balance or category is this goal targeting?
+                type: String,
+                required: true
+                },
+                current_amount: {//Currentamount for the goal.
+                    type: Number,
+                default: 0
+            },
             target_amount: {//Goal target amount
                 type: Number,
                 required: true
@@ -76,7 +84,7 @@ const userSchema = new Schema({
                 default: 0
             },
             due_date: {//Optional if the user wishes to supply this
-                type: Date,
+                type: String,
             }
         }]
     }

@@ -325,9 +325,9 @@ app.post("/add-balance", (req, res) => {
     });
 });
 app.post("/add-goal", (req, res) => {
-    const {description, goal_type, target_amount, goal_progress, due_date} = req.body;
+    const {description, goal_type, category, target_amount, due_date} = req.body;
     user_email = req.cookies.user_email;
-    if (amount < 1) {
+    if (target_amount < 1) {
         return res.status(400).json({ error: "Amount must be greater than or equal to 1." });
     }
     if (!user_email) {
@@ -338,9 +338,11 @@ app.post("/add-goal", (req, res) => {
             "profile.goals": {
                 description,
                 goal_type,
+                category,
+                current_amount: 0,
                 target_amount,
-                goal_progress,
-                due_date,
+                goal_progress: 0,
+                due_date
             }
         }, 
     }, {new: true}).then((updated_user) => {
