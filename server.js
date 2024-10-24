@@ -83,6 +83,14 @@ app.post('/login', (req, res) => {
     res.status(500).json({ error: "Server error" });
 });
 });
+app.post("/logout", (req, res) => {
+    res.clearCookie('user_email', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+    });
+    res.status(200).json({ message: "Logout successful." });
+});
 app.get('/profile', (req, res) => {
     const user_email = req.cookies.user_email;
     if (!user_email) {

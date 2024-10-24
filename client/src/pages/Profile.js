@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Profile_component = () => {
     const [profile, setProfile] = useState(null);
@@ -10,6 +11,7 @@ const Profile_component = () => {
     const [current_balance, setCurrentBalance] = useState(0);
     const [monthly_budget, setMonthlyBudget] = useState(0);
     const [name_error, setNameError] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch('http://localhost:5000/profile', {
@@ -74,6 +76,26 @@ const Profile_component = () => {
         setError("Error submitting onboarding data.");
     }
 };
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/logout", {
+                method: 'POST',
+                credentials: 'include'
+            });
+            if (response.ok) {
+                setProfile(null);
+                navigate("/login");
+            }
+            else {
+                setError("Error logging out.");
+            }
+        }
+        catch (err) {
+            console.error("Error: ", err);
+            setError("Error logging out.");
+        }
+    }
 return (
     <div className="container-fluid">
             {/*This page will be based on conditions. If an error is present, the error will display. If there is no first name, the onboarding page will display. Otherwise the profile will display.*/}
@@ -111,7 +133,7 @@ return (
                             ))}
                             <h2>Monthly budget: ${profile.budget.amount}</h2>
                             </div>
-                            <button className="btn btn-outline-danger">Logout</button>
+                            <button className="btn btn-outline-danger" onClick={handleLogout}>Logout</button>
                         </header>
                         {/* Expenses table or empty state */}
                         <section>
