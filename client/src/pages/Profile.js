@@ -87,7 +87,10 @@ return (
                         <div className="position-sticky">
                         <ul className="nav flex-column">
                         <li className="nav-item">
-                            <Link to="/add-expense" className="nav-link">Add Expense or Update Balance</Link>
+                            <Link to="/add-expense" className="nav-link">Add Expense</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/add-balance" className="nav-link">Add or Update Balance</Link>
                         </li>
                         <li className="nav-item">
                             <Link to="/goals" className="nav-link">View or Add Goals</Link>
@@ -168,7 +171,7 @@ return (
                         {name_error && <p className="text-danger" role="alert">{name_error}</p>}
                     </div>
                     <div className='mb-3'>
-                        <label htmlFor='current-balance' className='form-label'>What is your current balance?</label>
+                        <label htmlFor='current-balance' className='form-label'>What is your current balance? This balance should be your overall assets or overall balance.</label>
                         <input
                         type="number"
                         id="current-balance"

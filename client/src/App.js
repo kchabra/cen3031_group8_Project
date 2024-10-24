@@ -5,6 +5,7 @@ import Signup from "./pages/Signup";
 import AboutUs from "./pages/AboutUs";
 import Profile from "./pages/Profile";
 import AddExpense from './pages/AddExpense';
+import AddBalance from "./pages/AddBalance";
 import GoalPage from './pages/GoalPage';
 import UpdateProfile from './pages/UpdateProfile';
 import Footer from "./pages/Footer";
@@ -20,6 +21,7 @@ const App = () => {
       <Route path="/about" element={<AboutUs/>}/>
       <Route path="/profile" element={<Profile/>}/>
       <Route path="/add-expense" element={<AddExpense/>}/>
+      <Route path="/add-balance" element={<AddBalance/>}/>
       <Route path="/goals" element={<GoalPage/>}/>
       <Route path="/update-profile" element={<UpdateProfile/>}/>
           </Routes>

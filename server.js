@@ -157,33 +157,95 @@ app.post('/add-expense', (req, res) => {
     });
 });
 app.post("/update-balance", (req, res) => {
-    const {balance_type, category, description, amount} = req.body;
-    user_email = req.cookies.user_email;
+    const { balance_type, category, description, amount } = req.body;
+    const user_email = req.cookies.user_email;
+
     if (amount < 1) {
         return res.status(400).json({ error: "Amount must be greater than or equal to 1." });
     }
+
     if (!user_email) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
-    User.findOneAndUpdate({email: user_email, "profile.balances.balance_type": balance_type}, {
-        $push: {
-            "profile.expenses": {
-                category,
-                amount,
-                date: Date.now(),
-                description,
-            }
-        }, 
-        $inc: {
-            "profile.balances.$.amount": +amount,
-        }
-    }, {new: true}).then((updated_user) => {
-        if (!updated_user) return res.status(404).json({ message: 'User not found' });
-        res.status(200).json({ message: 'Expense added successfully!' });
-    }).catch (error => {
-        console.error(error);
-        res.status(500).json({ message: 'Error adding expense', error });
-    });
+
+    // If balance_type is "Main Balance", just increase it
+    if (balance_type === "Main Balance") {
+        User.findOneAndUpdate(
+            { email: user_email, "profile.balances.balance_type": "Main Balance" },
+            {
+                $push: {
+                    "profile.expenses": {
+                        category,
+                        amount,
+                        date: Date.now(),
+                        description,
+                    }
+                },
+                $inc: {
+                    "profile.balances.$.amount": amount,  // Increment Main Balance
+                }
+            },
+            { new: true }
+        ).then((updated_user) => {
+            if (!updated_user) return res.status(404).json({ message: 'User not found' });
+            res.status(200).json({ message: 'Balance updated successfully!' });
+        }).catch((error) => {
+            console.error(error);
+            res.status(500).json({ message: 'Error updating balance', error });
+        });
+    } else {
+        // Check if Main Balance will be less than 0 after decrementing
+        User.findOne({ email: user_email, "profile.balances.balance_type": "Main Balance" })
+            .then((user) => {
+                if (!user) return res.status(404).json({ message: 'User not found' });
+
+                const mainBalance = user.profile.balances.find(b => b.balance_type === "Main Balance").amount;
+
+                if (mainBalance - amount < 0) {
+                    // If the main balance would be negative after the decrement, return an error
+                    return res.status(400).json({ message: 'Insufficient funds in Main Balance' });
+                }
+
+                // Decrement Main Balance by amount
+                return User.findOneAndUpdate(
+                    { email: user_email, "profile.balances.balance_type": "Main Balance" },
+                    {
+                        $inc: { "profile.balances.$.amount": -amount }  // Decrease Main Balance by amount
+                    },
+                    { new: true }
+                );
+            })
+            .then((user) => {
+                if (!user) return res.status(404).json({ message: 'User not found' });
+
+                // Now increment the selected balance by the specified amount
+                return User.findOneAndUpdate(
+                    { email: user_email, "profile.balances.balance_type": balance_type },
+                    {
+                        $push: {
+                            "profile.expenses": {
+                                category,
+                                amount,
+                                date: Date.now(),
+                                description,
+                            }
+                        },
+                        $inc: {
+                            "profile.balances.$.amount": amount,  // Increment the specified balance
+                        }
+                    },
+                    { new: true }
+                );
+            })
+            .then((updated_user) => {
+                if (!updated_user) return res.status(404).json({ message: 'User not found' });
+                res.status(200).json({ message: 'Balance updated successfully!' });
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(500).json({ message: 'Error updating balance', error });
+            });
+    }
 });
 app.post("/add-balance", (req, res) => {
     const { balance_type, category, description, amount } = req.body;
@@ -197,31 +259,39 @@ app.post("/add-balance", (req, res) => {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
+    // Find the user by email
     User.findOne({ email: user_email }).then((user) => {
         if (!user) return res.status(404).json({ message: 'User not found' });
 
+        // Get the current main balance
         const mainBalance = user.profile.balances.find(b => b.balance_type === "Main Balance");
 
+        // Check if the main balance is sufficient
         if (!mainBalance || mainBalance.amount < amount) {
             return res.status(400).json({ error: 'Insufficient funds in Main Balance.' });
         }
 
-        // First decrement the main balance
+        // Ensure Main Balance will not drop below zero after decrementing
+        if (mainBalance.amount - amount < 0) {
+            return res.status(400).json({ error: 'Main Balance will be negative after this transaction.' });
+        }
+
+        // Proceed with decrementing the main balance
         const updatedBalances = user.profile.balances.map(b => {
             if (b.balance_type === "Main Balance") {
-                b.amount -= amount;
+                b.amount -= amount; // Decrement main balance by the amount
             }
             return b;
         });
 
-        // Then add the new balance entry (or update existing one if it exists)
+        // Check if the specified balance already exists and increment it, or create a new one
         const existingBalance = user.profile.balances.find(b => b.balance_type === balance_type);
         if (existingBalance) {
-            existingBalance.amount += amount;
+            existingBalance.amount += amount; // Increment the existing balance
         } else {
             updatedBalances.push({
                 balance_type,
-                amount
+                amount  // Add the new balance
             });
         }
 
@@ -233,7 +303,7 @@ app.post("/add-balance", (req, res) => {
             description
         }];
 
-        // Update the user with new balances and expenses
+        // Update the user document with new balances and expenses
         User.findOneAndUpdate(
             { email: user_email },
             {
@@ -248,6 +318,7 @@ app.post("/add-balance", (req, res) => {
             console.error(error);
             res.status(500).json({ message: 'Error adding balance or expense', error });
         });
+
     }).catch(error => {
         console.error(error);
         res.status(500).json({ message: 'Error retrieving user', error });
