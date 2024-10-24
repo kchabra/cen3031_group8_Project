@@ -99,7 +99,7 @@ app.get('/profile', (req, res) => {
 });
 
 app.post('/onboarding', (req, res) => {
-    const {first_name, last_name, current_balance, budget} = req.body;
+    const {first_name, last_name, balances, budget} = req.body;
     const user_email = req.cookies.user_email;
     if (!user_email) {
         return res.status(401).json({ message: 'Unauthorized' });
@@ -108,7 +108,10 @@ app.post('/onboarding', (req, res) => {
         profile: {
             first_name,
             last_name,
-            current_balance,
+            balances: {
+                balance_type: "Main Balance",
+                amount: balances.amount
+            },
             budget: {
                 amount: budget.amount,
                 last_set: Date.now()
@@ -132,7 +135,7 @@ app.post('/add-expense', (req, res) => {
     if (!user_email) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
-    User.findOneAndUpdate({email: user_email}, {
+    User.findOneAndUpdate({email: user_email, "profile.balances.balance_type": "Main Balance"}, {
         $push: {
             "profile.expenses": {
                 category,
@@ -142,7 +145,7 @@ app.post('/add-expense', (req, res) => {
             }
         }, 
         $inc: {
-            "profile.current_balance": -amount,
+            "profile.balances.$.amount": -amount,
             "profile.budget.amount": -amount
         }
     }, {new: true}).then((updated_user) => {
@@ -154,7 +157,7 @@ app.post('/add-expense', (req, res) => {
     });
 });
 app.post("/update-balance", (req, res) => {
-    const {category, description, amount} = req.body;
+    const {balance_type, category, description, amount} = req.body;
     user_email = req.cookies.user_email;
     if (amount < 1) {
         return res.status(400).json({ error: "Amount must be greater than or equal to 1." });
@@ -162,7 +165,7 @@ app.post("/update-balance", (req, res) => {
     if (!user_email) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
-    User.findOneAndUpdate({email: user_email}, {
+    User.findOneAndUpdate({email: user_email, "profile.balances.balance_type": balance_type}, {
         $push: {
             "profile.expenses": {
                 category,
@@ -172,7 +175,7 @@ app.post("/update-balance", (req, res) => {
             }
         }, 
         $inc: {
-            "profile.current_balance": +amount,
+            "profile.balances.$.amount": +amount,
         }
     }, {new: true}).then((updated_user) => {
         if (!updated_user) return res.status(404).json({ message: 'User not found' });
@@ -180,6 +183,101 @@ app.post("/update-balance", (req, res) => {
     }).catch (error => {
         console.error(error);
         res.status(500).json({ message: 'Error adding expense', error });
+    });
+});
+app.post("/add-balance", (req, res) => {
+    const { balance_type, category, description, amount } = req.body;
+    const user_email = req.cookies.user_email;
+
+    if (amount < 1) {
+        return res.status(400).json({ error: "Amount must be greater than or equal to 1." });
+    }
+
+    if (!user_email) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    User.findOne({ email: user_email }).then((user) => {
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const mainBalance = user.profile.balances.find(b => b.balance_type === "Main Balance");
+
+        if (!mainBalance || mainBalance.amount < amount) {
+            return res.status(400).json({ error: 'Insufficient funds in Main Balance.' });
+        }
+
+        // First decrement the main balance
+        const updatedBalances = user.profile.balances.map(b => {
+            if (b.balance_type === "Main Balance") {
+                b.amount -= amount;
+            }
+            return b;
+        });
+
+        // Then add the new balance entry (or update existing one if it exists)
+        const existingBalance = user.profile.balances.find(b => b.balance_type === balance_type);
+        if (existingBalance) {
+            existingBalance.amount += amount;
+        } else {
+            updatedBalances.push({
+                balance_type,
+                amount
+            });
+        }
+
+        // Add the expense entry
+        const updatedExpenses = [...user.profile.expenses, {
+            category,
+            amount,
+            date: Date.now(),
+            description
+        }];
+
+        // Update the user with new balances and expenses
+        User.findOneAndUpdate(
+            { email: user_email },
+            {
+                "profile.balances": updatedBalances,
+                "profile.expenses": updatedExpenses
+            },
+            { new: true }
+        ).then(updated_user => {
+            if (!updated_user) return res.status(404).json({ message: 'User not found' });
+            res.status(200).json({ message: 'Balance and expense added successfully!' });
+        }).catch(error => {
+            console.error(error);
+            res.status(500).json({ message: 'Error adding balance or expense', error });
+        });
+    }).catch(error => {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving user', error });
+    });
+});
+app.post("/add-goal", (req, res) => {
+    const {description, goal_type, target_amount, goal_progress, due_date} = req.body;
+    user_email = req.cookies.user_email;
+    if (amount < 1) {
+        return res.status(400).json({ error: "Amount must be greater than or equal to 1." });
+    }
+    if (!user_email) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+    User.findOneAndUpdate({email: user_email}, {
+        $push: {
+            "profile.goals": {
+                description,
+                goal_type,
+                target_amount,
+                goal_progress,
+                due_date,
+            }
+        }, 
+    }, {new: true}).then((updated_user) => {
+        if (!updated_user) return res.status(404).json({ message: 'User not found' });
+        res.status(200).json({ message: 'Goal added successfully!' });
+    }).catch (error => {
+        console.error(error);
+        res.status(500).json({ message: 'Error adding goal', error });
     });
 });
 app.listen(PORT, () => {console.log(`Server running on port ${PORT}`);});

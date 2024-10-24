@@ -20,10 +20,16 @@ const userSchema = new Schema({
             type: String,
             default: ""
         },
-        current_balance: {//Current balance; required for onboarding; set to 0 for all new users by default
-            type: Number,
-            default: 0
-        },
+        balances: [{//Main balance, emergency fund, savings, etc
+            balance_type: {
+                type: String,
+                default: ""
+            },
+            amount: {
+                type: Number,
+                default: 0
+            }
+        }],
         budget: { //object to hold info about the budget; amount and when it was set.
         amount: {//How much they should spend per month; default is 0; optional for onboarding
             type: Number,
@@ -65,7 +71,7 @@ const userSchema = new Schema({
                 type: Number,
                 required: true
             },
-            goal_Profress_amount: {//Progress amount towards goal. Will start at 0.
+            goal_progress: {//Progress amount towards goal. Will start at 0 and up to 100.
                 type: Number,
                 default: 0
             },

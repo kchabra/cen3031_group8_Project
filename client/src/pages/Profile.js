@@ -45,7 +45,9 @@ const Profile_component = () => {
         const onboarding_data = {
             first_name: first_name,
             last_name: last_name,
-            current_balance: current_balance,
+            balances: {
+                amount: current_balance,
+            },
             budget: {
                 amount: monthly_budget
             }
@@ -101,7 +103,9 @@ return (
                         <header className="d-flex justify-content-between align-items-center py-3 mb-4 border-bottom">
                             <div>
                             <h1>Welcome, {profile.first_name}!</h1>
-                            <h2>Current balance: ${profile.current_balance}</h2>
+                            {profile.balances.map((balance) => (
+                                <h2>{balance.balance_type}: ${balance.amount}</h2>
+                            ))}
                             <h2>Monthly budget: ${profile.budget.amount}</h2>
                             </div>
                             <button className="btn btn-outline-danger">Logout</button>

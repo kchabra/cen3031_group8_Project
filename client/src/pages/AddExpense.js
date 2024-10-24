@@ -1,31 +1,78 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useEffect, useState} from 'react';
+import { useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AddExpense = () => {
+    const [profile, setProfile] = useState(null);
     const [is_update_balance, setIsUpdateBalance] = useState(true);
     const [category, setCategory] = useState("");
     const [amount, setAmount] = useState(0);
     const [description, setDescription] = useState("");
+    const [selected_balance, setSelectedBalance] = useState("");
+    const [balance_name, setBalanceName] = useState("");
+    const [show_new_balance_input, setShowNewBalanceInput] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+
+    useEffect(() => {
+        fetch('http://localhost:5000/profile', {
+            method: 'GET',
+            credentials: 'include', // Important to send cookies with the request
+        }).then((response) => response.json()).then((data) => {
+            if (data.profile) {
+                setProfile(data.profile);
+            }
+            else if (data.message) {
+                setError(data.message);
+            }
+        }).catch((err) => {
+            setError("Error fetching profile.");
+
+        });
+    }, []);
+
     const handleSubmit = async () => {
         if (amount < 1) {//check if amount is less than 1 and give error before submission. If this is the case, return to prevent submission.
             setError('Error: Amount must be greater than or equal to 1.');
             return;
         }
-        const url = is_update_balance ? "http://localhost:5000/update-balance" : "http://localhost:5000/add-expense";
-        const data = is_update_balance ? {
-            category: "Income",
-            amount: amount,
-            description: "Update to balance",
-            date: new Date()
-        } : {
-            category: category,
-            amount: amount,
-            description: description,
-            date: new Date()
-        };
+        let url;
+        let data;
+        if(is_update_balance) {
+            if (show_new_balance_input) {
+                if (!balance_name) {
+                    setError("Error: Balance name cannot be empty.");
+                    return;
+                }
+                url = "http://localhost:5000/add-balance";
+                data = {
+                    balance_type: balance_name,
+                    category: "Transfer",
+                    description: `Transfer from main balance to ${balance_name}.`,
+                                        amount: amount
+                };
+
+            }
+            else {
+                url = "http://localhost:5000/update-balance";
+                data = {
+                    balance_type: selected_balance,
+                    category: "Income",
+                    amount: amount,
+                    description: "Update to balance",
+                    date: new Date()
+                };
+            }
+        }
+        else {
+            url = "http://localhost:5000/add-expense";
+            data = {
+                category: category,
+                amount: amount,
+                description: description,
+                date: new Date()
+            };
+        }
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -41,6 +88,7 @@ const AddExpense = () => {
                 setCategory("");
                 setAmount(0);
                 setDescription("");
+                setBalanceName("");
             }
             else {
                 setError('Error: Could not update balance or add expense');
@@ -84,6 +132,36 @@ const AddExpense = () => {
             {/* Conditional rendering based on user selection */}
             {is_update_balance ? (//User wants to update balance.
             <div className="form-group">
+                <label htmlFor="balance-dropdown">Select Balance:</label>
+                <select
+                className='form-control"'
+                id="balance-dropdown"
+                value={selected_balance}
+                onChange={(e) => {
+                    const selected = e.target.value;
+                    setSelectedBalance(selected);
+                    setShowNewBalanceInput(selected === "add-new");
+                }}
+                >
+                    <option value="">-- Select Balance --</option>
+                    {profile && profile.balances.map((balance, index) => (
+                        <option key={index} value={balance.balance_type}>{balance.balance_type}</option>
+                    ))}
+                    <option value="add-new">Add New Balance</option>
+                </select>
+                {show_new_balance_input && (
+                    <div>
+                        <label htmlFor="new-balance-name">New Balance Name:</label>
+                        <input
+                        type="text"
+                        id="new-balance-name"
+                        className="form-control"
+                        value={balance_name}
+                        onChange={(e) => setBalanceName(e.target.value)}
+                        required
+                        />
+                        </div>
+                )}
                 <label htmlFor="balance">Amount:</label>
                 <input
                 type="number"
@@ -93,7 +171,7 @@ const AddExpense = () => {
                 onChange={(e) => setAmount(e.target.value)}
                 required
                 />
-                <button className="btn btn-primary mt-3" onClick={handleSubmit}>Update Balance</button>
+                <button className="btn btn-primary mt-3" onClick={handleSubmit}>{show_new_balance_input ? 'Add New Balance' : 'Update Balance'}</button>
             </div>
             ) : (//User wants to add expense.
                 <div className="form-group">
