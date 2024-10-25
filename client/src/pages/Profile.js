@@ -128,8 +128,8 @@ return (
                         <header className="d-flex justify-content-between align-items-center py-3 mb-4 border-bottom">
                             <div>
                             <h1>Welcome, {profile.first_name}!</h1>
-                            {profile.balances.map((balance) => (
-                                <h2>{balance.balance_type}: ${balance.amount}</h2>
+                            {profile.balances.map((balance, index) => (
+                                <h2 key={index}>{balance.balance_type}: ${balance.amount}</h2>
                             ))}
                             <h2>Monthly budget: ${profile.budget.amount}</h2>
                             </div>

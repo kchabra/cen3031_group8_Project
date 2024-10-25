@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,17 @@ const Login = () => {
     const [error_message, setErrorMessage] = useState('');
     const [password_is_hidden, setPasswordVisibility] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        fetch('http://localhost:5000/checkout-session', {
+            method: 'GET',
+            credentials: 'include'
+        }).then((response) => response.json()).then((data) => {
+            if (data.is_loggedin) {
+                navigate("/profile");
+            }
+        }).catch(() => setErrorMessage("Error checking session."));
+    }, [navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

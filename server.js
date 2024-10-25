@@ -91,6 +91,20 @@ app.post("/logout", (req, res) => {
     });
     res.status(200).json({ message: "Logout successful." });
 });
+app.get('/user', (req, res) => {
+    const user_email = req.cookies.user_email;
+    if (!user_email) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+    User.findOne({email: user_email}).then(user => {
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ user: user });
+    }).catch(err => {
+        res.status(500).json({ message: 'Error fetching profile', err });
+    });
+});
 app.get('/profile', (req, res) => {
     const user_email = req.cookies.user_email;
     if (!user_email) {
@@ -105,7 +119,21 @@ app.get('/profile', (req, res) => {
         res.status(500).json({ message: 'Error fetching profile', err });
     });
 });
-
+app.get("/checkout-session", (req, res) => {
+    const user_email = req.cookies.user_email;
+    if (!user_email) {
+        return res.status(401).json({ is_loggedin: false, message: "No active session." });
+    }
+    User.findOne({email: user_email}).then((user) => {
+        if (!user) {
+            return res.status(401).json({ is_loggedin: false, message: "Invalid session." });
+        }
+        res.status(200).json({ is_loggedin: true, message: "Logged in successfully." });
+    }).catch((err) => {
+        console.error("Error verifying session:", err);
+        res.status(500).json({ is_loggedin: false, message: "Server error." });
+    });
+});
 app.post('/onboarding', (req, res) => {
     const {first_name, last_name, balances, budget} = req.body;
     const user_email = req.cookies.user_email;

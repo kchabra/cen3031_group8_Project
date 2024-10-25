@@ -27,7 +27,7 @@ const GoalPage = () => {
         }).catch((err) => {
             setError("Error fetching goals.");
         });
-    }, []);
+    }, [profile]);
 
     const handleAddGoal = async () => {
         if (target_amount < 1) {
@@ -58,7 +58,7 @@ const GoalPage = () => {
                 setTargetAmount(0);
                 setDueDate("");
                 setShowModal(false);
-            }
+                    }
             else {
                 setError("Unable to add goal.");
             }
@@ -82,7 +82,7 @@ const GoalPage = () => {
             {error &&<p className="text-danger">{error}</p>}
             <button className="btn btn-primary" onClick={() => setShowModal(true)}>Add Goal</button>
             {show_modal && (
-                <div role="dialogue" className="modal show" style={{ display: "block" }}>
+                <div className="modal show" style={{ display: "block" }}>
                     <div className="modal-dialog">
                     <div className="modal-content">
                     <div className="modal-header">
