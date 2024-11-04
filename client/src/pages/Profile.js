@@ -47,9 +47,10 @@ const Profile_component = () => {
         const onboarding_data = {
             first_name: first_name,
             last_name: last_name,
-            balances: {
+            balances: [{
+                balance_type: "Main Balance",
                 amount: current_balance,
-            },
+            }],
             budget: {
                 amount: monthly_budget
             }
@@ -65,7 +66,11 @@ const Profile_component = () => {
             });
             if (response.ok) {
                 //Response is good and has been sent; refresh the profile.
-                setProfile(onboarding_data);
+                setProfile({
+                    ...onboarding_data,
+                    balances: onboarding_data.balances || [],
+                    expenses: profile.expenses || [],
+                });
             }
             else {
                 //Error has appeared.
@@ -102,69 +107,7 @@ return (
             {error && 
                 <p className="text-danger">{error}</p>}
             {profile ? (//No error; profile data is present.
-             profile.first_name ? (//Profile has first name; display the profile.
-                    <div className="row">
-                        {/* Left navigation */}
-                        <nav className="col-md-2 bg-light sidebar">
-                        <div className="position-sticky">
-                        <ul className="nav flex-column">
-                        <li className="nav-item">
-                            <Link to="/add-expense" className="nav-link">Add Expense</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link to="/add-balance" className="nav-link">Add or Update Balance</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link to="/goals" className="nav-link">View or Add Goals</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link to="/update-profile" className="nav-link">Update Profile</Link>
-                        </li>
-                        </ul>
-                        </div>
-                        </nav>
-                        {/* Main content */}
-                        <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                        <header className="d-flex justify-content-between align-items-center py-3 mb-4 border-bottom">
-                            <div>
-                            <h1>Welcome, {profile.first_name}!</h1>
-                            {profile.balances.map((balance, index) => (
-                                <h2 key={index}>{balance.balance_type}: ${balance.amount}</h2>
-                            ))}
-                            <h2>Monthly budget: ${profile.budget.amount}</h2>
-                            </div>
-                            <button className="btn btn-outline-danger" onClick={handleLogout}>Logout</button>
-                        </header>
-                        {/* Expenses table or empty state */}
-                        <section>
-                            {profile.expenses.length === 0 ? (//No expenses; show empty state.
-                            <p>Oh dear, no transactions to show. Click the "add Expense or Update Balance" button to get started.</p>
-                            ) : (//Transactions exists; show table.
-                                <table className="table">
-                                <thead>
-                                <tr>
-                                <th>Category</th>
-                                <th>Description</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {profile.expenses.map((expense, index) => (
-                                    <tr key={index}>
-                                    <td>{expense.category}</td>
-                                    <td>{expense.description}</td>
-                                    <td>${expense.amount}</td>
-                                    <td>{new Date(expense.date).toLocaleDateString()}</td>
-                                    </tr>
-                                    ))}
-                                    </tbody>
-                                    </table>
-                            )}
-                        </section>
-                        </main>
-                    </div>
-             ) : ( //First name not present. Onboarding is below.
+             !profile.first_name ? ( //First name not present. Onboarding is below.
                 <main className="mt-5">
                     <h1>Welcome! Let's get started with your profile so you can start saving big.</h1>
                     <form className="bg-light p-4 rounded shadow" onSubmit={handleOnboardingSubmit}>
@@ -218,6 +161,69 @@ return (
                     <button type="submit" className="btn btn-primary w-100">Update Profile</button>
                     </form>
                 </main>
+             ) : (//Profile has first name; display the profile.
+                    <div className="row">
+                        {/* Left navigation */}
+                        <nav className="col-md-2 bg-light sidebar">
+                        <div className="position-sticky">
+                        <ul className="nav flex-column">
+                        <li className="nav-item">
+                            <Link to="/add-expense" className="nav-link">Add Expense</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/add-balance" className="nav-link">Add or Update Balance</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/goals" className="nav-link">View or Add Goals</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/update-profile" className="nav-link">Update Profile</Link>
+                        </li>
+                        </ul>
+                        </div>
+                        </nav>
+                        {/* Main content */}
+                        <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                        <header className="d-flex justify-content-between align-items-center py-3 mb-4 border-bottom">
+                            <div>
+                            <h1>Welcome, {profile.first_name}!</h1>
+                            {profile.balances.map((balance, index) => (
+                                <h2 key={index}>{balance.balance_type}: ${balance.amount}</h2>
+                            ))
+}
+                            {profile.budget && <h2>Monthly budget: ${profile.budget.amount}</h2>}
+                            </div>
+                            <button className="btn btn-outline-danger" onClick={handleLogout}>Logout</button>
+                        </header>
+                        {/* Expenses table or empty state */}
+                        <section>
+                            {profile.expenses.length === 0 ? (//No expenses; show empty state.
+                            <p>Oh dear, no transactions to show. Click the "add Expense or Update Balance" button to get started.</p>
+                            ) : (//Transactions exists; show table.
+                                <table className="table">
+                                <thead>
+                                <tr>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {profile.expenses.map((expense, index) => (
+                                    <tr key={index}>
+                                    <td>{expense.category}</td>
+                                    <td>{expense.description}</td>
+                                    <td>${expense.amount}</td>
+                                    <td>{new Date(expense.date).toLocaleDateString()}</td>
+                                    </tr>
+                                    ))}
+                                    </tbody>
+                                    </table>
+                            )}
+                        </section>
+                        </main>
+                    </div>
              )
                 ) : (//First name is present.
                     <p>Loading profile...</p>
