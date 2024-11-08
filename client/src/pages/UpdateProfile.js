@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const UpdateProfile = () => {
-    const [user, setUser] = useState(null);
     const [first_name, setFirstName] = useState("");
     const [last_name, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -11,6 +10,7 @@ const UpdateProfile = () => {
     const [confirm_new_password, setConfirmNewPassword] = useState("");
     const [current_password, setCurrentPassword] = useState("");
     const [errors, setError] = useState({});
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch("http://localhost:5000/user", {
@@ -18,16 +18,15 @@ const UpdateProfile = () => {
             credentials: 'include'
         }).then((response) => response.json()).then((data) => {
             if (data.user) {
-                setUser(data.user);
                 setFirstName(data.user.profile.first_name);
                 setLastName(data.user.profile.last_name);
                 setEmail(data.user.email);
             }
          else {
-            setError({"server_error": data.message});
+            alert(data.message);
          }
         }).catch((err) => {
-            setError({"server_error": "Error fetching user."});
+            alert("Error fetching user.");
         });
     }, []);
 
@@ -95,11 +94,75 @@ const UpdateProfile = () => {
         setError(password_errors);
     };
 
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        const data = {
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            new_password: new_password,
+            current_password: current_password
+        };
+        try {
+            const response = await fetch("http://localhost:5000/update-profile", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                alert("Profile updated successfully.");
+                navigate("/profile");
+            } else {
+                const errorData = await response.json(); // Getting the error message from the response
+                alert(errorData.message || "Could not update profile" );
+            }
+        } catch (error) {
+            alert("error updating profile.");
+        }
+    };
+    
+    const deleteAccount = async () => {
+        const confirmation = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+        if (!confirmation) return;
+        const current_password = window.prompt("Please enter your current password to confirm account deletion:");
+        if (!current_password) {
+            alert("Account deletion canceled.");
+            return;
+        }
+        const data = {
+            current_password: current_password
+        };
+        try {
+            const response = await fetch("http://localhost:5000/delete-account", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                alert("Account deleted successfully.");
+                navigate("/");
+            }
+            else {
+                const error_data = await response.json();
+                alert(error_data.message || "Failed to delete account.");
+            }
+        }
+        catch(error) {
+            console.error("Error deleting account:", error);
+            alert("An error occurred while deleting your account. Please try again later.");
+        }
+    };
     return (
         <div className="flex-grow-1 d-flex justify-content-center align-items-center">
             <main className="container">
             <h1 className="bg-primary text-white text-center p-4">Update Profile</h1>
-            <form className="bg-light p-5 rounded shadow" style={{ maxWidth: '500px', margin: 'auto' }}>
+            <form className="bg-light p-5 rounded shadow" style={{ maxWidth: '500px', margin: 'auto' }} onSubmit={handleUpdateProfile}>
                 <div className='mb-3'>
                     <label htmlFor='first-name'>First Name</label>
                     <input
@@ -167,11 +230,11 @@ const UpdateProfile = () => {
                     required
                     />
                 </div>
-                <button type="submit" className="btn btn-primary w-100" disabled={Object.keys(errors).length != 0}>Update Profile</button>
+                <button type="submit" className="btn btn-primary w-100" disabled={Object.keys(errors).length !== 0}>Update Profile</button>
             </form>
-            <button className="btn btn-primary w-100">Delete Account</button>
+            <button className="btn btn-primary w-100" onClick={deleteAccount}>Delete Account</button>
             </main>
         </div>
     );
-};
+};      
 export default UpdateProfile;

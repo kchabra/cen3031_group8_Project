@@ -389,4 +389,77 @@ app.post("/add-goal", (req, res) => {
         res.status(500).json({ message: 'Error adding goal', error });
     });
 });
+
+app.post("/update-profile", async (req, res) => {
+    const {first_name, last_name, email, new_password, current_password} = req.body;
+    user_email = req.cookies.user_email;
+    if (!user_email) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+    try {
+        const user = await User.findOne({email: user_email});
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const password_matches = await bcrypt.compare(current_password, user.password);
+        if (!password_matches) {
+            return res.status(400).json({ message: 'Incorrect current password' });
+        }
+        const has_new_info = (
+            (first_name && first_name !== user.profile.first_name) ||
+            (last_name && last_name !== user.profile.last_name) ||
+            (email && email !== user.email) ||
+            (new_password && !(await bcrypt.compare(new_password, user.password)))
+        );
+        if (!has_new_info) {
+            return res.status(400).json({ message: 'No new information to update' });
+        }
+        if (first_name && first_name !== user.profile.first_name) user.profile.first_name = first_name;
+        if (last_name && last_name !== user.profile.last_name) user.profile.last_name = last_name;
+        if (email && email !== user.email) {
+            const check_email = await User.findOne({email: email});
+            if (check_email) return res.status(400).json({ message: 'Email is already in use' });
+            user.email = email;
+            const session_options = {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'Strict'//Prevents cookies from being sent from different websites.
+            };
+        res.cookie('user_email', email, session_options);
+        }
+        if (new_password && !(await bcrypt.compare(new_password, user.password))) user.password = await bcrypt.hash(new_password, salt_rounds);
+        await user.save();
+        res.status(200).json({ message: 'Profile updated successfully', user });
+    }
+    catch(err) {
+        console.error("Error updating profile:", err);
+        res.status(500).json({ message: 'Error updating profile', error: err.message });
+    }
+});
+
+app.delete("/delete-account", async (req, res) => {
+    const {current_password} = req.body;
+    const user_email = req.cookies.user_email;
+    if (!user_email) return res.status(401).json({ message: 'Unauthorized' });
+    try {
+        const user = await User.findOne({email: user_email});
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        if (!current_password) return res.status(400).json({ message: 'Current password is required' });
+        const match_password = await bcrypt.compare(current_password, user.password);
+        if (!match_password) return res.status(400).json({ message: 'Incorrect current password' });
+        const delete_result = await User.deleteOne({email: user_email});
+        if (delete_result.deletedCount === 0) return res.status(404).json({ message: 'User not found' });
+        res.clearCookie('user_email', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+        });
+        res.status(200).json({ message: 'Account deleted successfully' });
+    }
+    catch(err) {
+        console.error("Error deleting account:", err);
+        res.status(500).json({ message: 'Error deleting account', error: err.message });
+    }
+});
+
 app.listen(PORT, () => {console.log(`Server running on port ${PORT}`);});
