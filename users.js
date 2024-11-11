@@ -72,7 +72,7 @@ const userSchema = new Schema({
                 required: true
                 },
                 current_amount: {//Currentamount for the goal.
-                    type: Number,
+                type: Number,
                 default: 0
             },
             target_amount: {//Goal target amount
@@ -84,7 +84,7 @@ const userSchema = new Schema({
                 default: 0
             },
             due_date: {//Optional if the user wishes to supply this
-                type: String,
+                type: Date,
             }
         }]
     }

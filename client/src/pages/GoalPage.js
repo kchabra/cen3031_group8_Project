@@ -92,25 +92,20 @@ const GoalPage = () => {
                     <div className="modal-body">
                         <div className='form-group'>
                         <label htmlFor='goal-type'>Goal Type</label>
-                        <select
-                        className='form-control'
-                        id='goal-type'
-                        value={goal_type}
-                        onChange={(e) => setGoalType(e.target.value)}
-                        required
-                        autoFocus
-                        >
-                            <option value="">-- Select Goal Type--</option>
-            <option value="savings">Savings</option>
-            <option value="spending">Spending</option>
-                        </select>
+                            <input
+                                type="text"
+                                className='form-control'
+                                value={goal_type}
+                                onChange={(e) => setGoalType(e.target.value)}
+                                required
+                            />
                         </div>
                         <div className='form-group'>
-                        <label>Description</label>
-                        <input
-                        type="text"
-                        className='form-control'
-                        value={description}
+                            <label>Description</label>
+                            <input
+                                type="text"
+                                className='form-control'
+                                value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         required
                         />
@@ -209,7 +204,7 @@ const GoalPage = () => {
                                         />
                                         <span>{goal.target_amount > 0 ? Math.round((goal.current_amount / goal.target_amount) * 100) : 0}%</span>
                                     </td>
-                                    <td>{goal.due_date ? convertDate(goal.due_date) : 'no due date'}</td>
+                                    <td>{goal.due_date ? convertDate(goal.due_date) : 'No Due Date'}</td>
                                 </tr>
                             ))}
                         </tbody>
