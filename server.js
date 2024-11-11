@@ -437,6 +437,71 @@ app.post("/update-profile", async (req, res) => {
     }
 });
 
+app.post("/update-goals", (req, res) => {
+    const {amountGoal, goalType} = req.body;
+    const user_email = req.cookies.user_email;
+
+    if (amountGoal < 1) {
+        return res.status(400).json({ error: "Amount must be greater than or equal to 1." });
+    }
+
+    if (!user_email) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Find the user by email
+    User.findOne({ email: user_email }).then((user) => {
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Get the current main balance
+        const currGoal = user.profile.goals.findIndex(b => b.goal_type === goalType);
+
+        if (currGoal === -1) {
+            return res.status(404).json({ message: "Goal not found" });
+        }
+
+        user.profile.goals[currGoal].current_amount += amountGoal;
+
+        //currGoal.current_amount += amountGoal;
+
+        // Check if the main balance is sufficient
+        /*
+        if (!mainBalance || mainBalance.amount < amount) {
+            return res.status(400).json({ error: 'Insufficient funds in Main Balance.' });
+        }
+        */
+
+        // Add the expense entry
+        /* Add Goal update entry !!!!
+        const updatedExpenses = [...user.profile.expenses, {
+            category,
+            amount,
+            date: Date.now(),
+            description
+        }];
+        */
+
+        // Update the user document with new balances and expenses
+        User.findOneAndUpdate(
+            { email: user_email },
+            {
+                "profile.goals": user.profile.goals
+            },
+            { new: true }
+        ).then(updated_user => {
+            if (!updated_user) return res.status(404).json({ message: 'User not found' });
+            res.status(200).json({ message: 'Goal Amount Added Successfully!' });
+        }).catch(error => {
+            console.error(error);
+            res.status(500).json({ message: 'Error adding amount to Goal.', error });
+        });
+
+    }).catch(error => {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving user', error });
+    });
+});
+
 app.delete("/delete-account", async (req, res) => {
     const {current_password} = req.body;
     const user_email = req.cookies.user_email;
