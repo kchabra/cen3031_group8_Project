@@ -80,8 +80,8 @@ const AddBalance = () => {
             setError(show_new_balance_input ? 'Balance added successfully!' : 'Balance updated successfully!');
             //clear the form fields after submission.
             setAmount(0);
+            setSelectedBalance("");
             setBalanceName("");
-            setGoalSelected("");
             setShowNewBalanceInput(false);
         }
         else {
@@ -109,10 +109,7 @@ const AddBalance = () => {
                 if (response.ok) {
                     setError(show_new_balance_input ? 'Balance added successfully!' : 'Balance and goals updated successfully!');
                     //clear the form fields after submission.
-                    setAmount(0);
-                    setBalanceName("");
                     setGoalSelected("");
-                    setShowNewBalanceInput(false);
                 }
                 else {
                     setError('Error: Could not update balance and goals');
@@ -176,7 +173,7 @@ return (
                     required
                 />
             </div>)}
-            {(selected_balance && !show_new_balance_input) && (<div>
+            {!show_new_balance_input && selected_balance && (<div>
                 <label htmlFor="goal-dropdown">Do you wish to apply the balance update to a goal? (Optional):</label>
                 <select
                     className='form-control"'
@@ -188,15 +185,14 @@ return (
                     }}
                 >
                     <option value="">No</option>
-                    {profile && profile.goals.filter((goal) => goal.goal_type === "savings").map((goal, index) => (
+                    {profile && profile.goals.filter((goal) => goal.goal_type === "savings" && (goal.current_amount / goal.target_amount) !== 1).map((goal, index) => (
                         <option key={index} value={goal.description}>{goal.description}</option>
                     ))}
                 </select>
             </div>)}
         </div>
 
-        <button className="btn btn-primary mt-3"
-                onClick={handleSubmit}>{show_new_balance_input ? 'Add New Balance' : 'Update Balance'}</button>
+        <button className="btn btn-primary mt-3" onClick={handleSubmit} disabled={selected_balance === ""}>{show_new_balance_input ? 'Add New Balance' : 'Update Balance'}</button>
     </main>
 )
 }

@@ -142,7 +142,7 @@ const AddExpense = () => {
                     }}
                 >
                     <option value="">No</option>
-                    {profile && profile.goals.filter((goal) => goal.goal_type === "spending").map((goal, index) => (
+                    {profile && profile.goals.filter((goal) => goal.goal_type === "spending" && (goal.current_amount / goal.target_amount) !== 1).map((goal, index) => (
                         <option key={index} value={goal.description}>{goal.description}</option>
                     ))}
                 </select>

@@ -210,7 +210,8 @@ const handleDueDateChange = (e) => {
                             <th>Target Amount</th>
                             <th>Progress</th>
                             <th>Due Date</th>
-                            <th>Completed Goal</th>
+                            <th>Click to Complete goal!</th>
+                            <th>Notes</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -229,7 +230,28 @@ const handleDueDateChange = (e) => {
                                         <span>{goal.target_amount > 0 ? Math.round((goal.current_amount / goal.target_amount) * 100) : 0}%</span>
                                     </td>
                                     <td>{goal.due_date ? new Date(goal.due_date).toLocaleDateString('en-US', {timeZone: 'UTC'}) : 'No Due Date'}</td>
-                                    <td><button className="btn btn-danger" onClick={() => removeGoal(goal.id)}>Complete</button></td>
+                                    <td>
+                                        {goal.goal_type === "savings" ? (
+                                            <button className="btn btn-danger" onClick={() => removeGoal(goal.id)} disabled={(goal.target_amount / goal.current_amount) !== 1}>Complete</button>
+                                        ) : (
+                                            <p>This goal will automatically be removed at the end of the month. Try not to reach 100%.</p>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {goal.goal_type === 'savings' ? (
+                                            (goal.current_amount / goal.target_amount) !== 1 ? (
+                                                <p>${goal.target_amount - goal.current_amount} is required to complete this goal. You can add to a balance in "add balances" and apply this goal.</p>
+                                            ) : (
+                                                <p>Goal is complete.</p>
+                                            )
+                                        ) : (
+                                            (goal.current_amount / goal.target_amount) !== 1 ? (
+                                                <p>You can spend up to ${goal.target_amount - goal.current_amount} and meet this goal. Add an expense and apply this goal.</p>
+                                            ) : (
+                                                <p>You have exceeded your spending limit.</p>
+                                            )
+                                        )}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
