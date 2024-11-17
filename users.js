@@ -82,6 +82,11 @@ const userSchema = new Schema({
             },
             due_date: {//Optional if the user wishes to supply this
                 type: Date,
+            },
+            date_set: {//Need this to be able to remove expense goals.
+                type: Date,
+                require: true,
+                default: Date.now
             }
         }]
     }
