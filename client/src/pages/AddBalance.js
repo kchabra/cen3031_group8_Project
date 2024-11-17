@@ -8,9 +8,7 @@ const AddBalance = () => {
     const [selected_goal, setGoalSelected] = useState("");
     const [balance_name, setBalanceName] = useState("");
     const [show_new_balance_input, setShowNewBalanceInput] = useState(false);
-    const [show_goal_input, setShowGoalInput] = useState(false);
     const [amount, setAmount] = useState(0);
-    const [goalA, setgoalA] = useState(0);
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
@@ -84,7 +82,7 @@ const AddBalance = () => {
             setAmount(0);
             setBalanceName("");
             setGoalSelected("");
-            setgoalA(0);
+            setShowNewBalanceInput(false);
         }
         else {
             setError('Error: Could not update balance');
@@ -104,8 +102,8 @@ const AddBalance = () => {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        goalType: selected_goal,
-                        amountGoal: goalA
+                        goal: selected_goal,
+                        amountGoal: amount
                     }),
                 });
                 if (response.ok) {
@@ -114,7 +112,7 @@ const AddBalance = () => {
                     setAmount(0);
                     setBalanceName("");
                     setGoalSelected("");
-                    setgoalA(0);
+                    setShowNewBalanceInput(false);
                 }
                 else {
                     setError('Error: Could not update balance and goals');
@@ -182,7 +180,7 @@ return (
 
 
             {(selected_balance && !show_new_balance_input) && (<div>
-                <label htmlFor="goal-dropdown">Select Goal (Optional):</label>
+                <label htmlFor="goal-dropdown">Do you wish to apply the balance update to a goal? (Optional):</label>
                 <select
                     className='form-control"'
                     id="goal-dropdown"
@@ -190,27 +188,13 @@ return (
                     onChange={(e) => {
                         const selected_g = e.target.value;
                         setGoalSelected(selected_g);
-                        setShowNewBalanceInput(selected_g === "add-new");
                     }}
-                    required
-                    autoFocus
                 >
-                    <option value="">-- Select Goal --</option>
-                    {profile && profile.goals.map((goal, index) => (
-                        <option key={index} value={goal.goal_type}>{goal.goal_type}</option>
+                    <option value="">No</option>
+                    {profile && profile.goals.filter((goal) => goal.goal_type === "savings").map((goal, index) => (
+                        <option key={index} value={goal.description}>{goal.description}</option>
                     ))}
                 </select>
-                {(selected_balance && !show_new_balance_input) && (<div>
-                    <label htmlFor="balance">Amount Sent to Goal:</label>
-                    <input
-                        type="number"
-                        id="goalAmount"
-                        className="form-control"
-                        value={goalA}
-                        onChange={(e) => setgoalA(e.target.value)}
-                        required
-                    />
-                </div>)}
             </div>)}
         </div>
 

@@ -6,7 +6,6 @@ const GoalPage = () => {
     const [profile, setProfile] = useState(null);
     const [description, setDescription] = useState("");
     const [goal_type, setGoalType] = useState("");
-    const [category, setCategory] = useState("");
     const [target_amount, setTargetAmount] = useState(0);
     const [due_date, setDueDate] = useState("");
     const [error, setError] = useState("");
@@ -34,12 +33,25 @@ const GoalPage = () => {
             setError("Target amount to low.");
             return;
         }
+        let formatted_due_date = null;
+        if (due_date) {
+            const date_regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+             if (!date_regex.test(due_date)) {
+                setError("Invalid date format. Please use mm/dd/yyyy.");
+                return;
+             }
+             const [month, day, year] = due_date.split('/');
+             formatted_due_date = new Date(`${year}-${month}-${day}`);
+             if (isNaN(formatted_due_date.getTime())) {
+                setError("Invalid date value.");
+                return;
+             }
+        }
         const data = {
             description: description,
             goal_type: goal_type,
-            category: category,
             target_amount: target_amount,
-            due_date: due_date
+            due_date: formatted_due_date ? formatted_due_date : due_date
         };
         try {
             const response = await fetch("http://localhost:5000/add-goal", {
@@ -54,7 +66,6 @@ const GoalPage = () => {
                 setError("Goal added sucessfully.");
                 setDescription("");
                 setGoalType("");
-                setCategory("");
                 setTargetAmount(0);
                 setDueDate("");
                 setShowModal(false);
@@ -69,11 +80,19 @@ const GoalPage = () => {
         }
     };
 
-    function convertDate(date_string) {
-        const [year, month, day] = date_string.split('-');
-        return `${month}/${day}/${year}`;
+const handleDueDateChange = (e) => {
+    let value = e.target.value;
+    value = value.replace(/[^0-9/]/g, '');
+    if (value.length === 2 || value.length === 5) {
+        if (!value.endsWith('/')) {
+            value += '/';
+        }
     }
-
+    if (value.length > 10) {
+        value = value.slice(0, 10)
+    }
+    setDueDate(value);
+};
     return (
         <div className='container-fluid'>
             <button className="btn btn-secondary" onClick={() => navigate('/profile')}>Back</button>
@@ -92,60 +111,36 @@ const GoalPage = () => {
                     <div className="modal-body">
                         <div className='form-group'>
                         <label htmlFor='goal-type'>Goal Type</label>
-                            <input
+                            <select
                                 type="text"
+                                id='goal-type'
                                 className='form-control'
                                 value={goal_type}
                                 onChange={(e) => setGoalType(e.target.value)}
                                 required
-                            />
+                                autofocus
+                            >
+                                <option value="">-- Select Goal Type --</option>
+                                <option value="savings">Savings</option>
+                                <option value="spending">Spending</option>
+                                </select>
                         </div>
                         <div className='form-group'>
-                            <label>Description</label>
+                            <label htmlFor='description'>Description</label>
                             <input
                                 type="text"
+                                id='description'
                                 className='form-control'
                                 value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         required
                         />
                         </div>
-            {goal_type === "savings" && (
                         <div className='form-group'>
-                        <label htmlFor='select-category'>Select a balance for your goal.</label>
-                        <select
-                        className='form-control'
-                        id='select-category'
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        required
-                        >
-                            <option value="">-- Select Balance --</option>
-                            {profile && profile.balances.map((balance, index) => (
-                                <option key={index} value={balance.balance_type}>{balance.balance_type}</option>
-                            ))}
-                        </select>
-                        </div>)}
-                        {goal_type === "spending" && (
-                        <div className='form-group'>
-                        <label htmlFor='select-category'>Select a spending category for your goal.</label>
-                        <select
-                        id='select-category'
-                        className='form-control'
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        required
-                        >
-                            <option value="">-- Select Balance --</option>
-                            {profile && Array.from(new Set(profile.expenses.map(expense => expense.category).filter(category => category !== "income" && category !== "transfer"))).map((category, index) => (
-                                <option key={index} value={category}>{category}</option>
-                            ))}
-                        </select>
-                        </div>)}
-                        <div className='form-group'>
-                        <label>Target Amount</label>
+                        <label htmlFor='target-amount'>Target Amount</label>
                         <input
                         type='number'
+                        id='target-amount'
                         className='form-control'
                         value={target_amount}
                         onChange={(e) => setTargetAmount(e.target.value)}
@@ -153,12 +148,15 @@ const GoalPage = () => {
                         />
                         </div>
                         <div className='form-group'>
-                        <label>Target Amount</label>
+                        <label htmlFor='date'>Due Date (Optional)</label>
                         <input
-                        type="date"
+                        type="text"
+                        id='date'
                         className='form-control'
                         value={due_date}
-                        onChange={(e) => setDueDate(e.target.value)}
+                        placeholder="mm/dd/yyyy"
+                        onChange={handleDueDateChange}
+                        maxLength="10"
                         />
                         </div>
                     </div>
@@ -180,7 +178,6 @@ const GoalPage = () => {
                         <thead>
                             <tr>
                             <th>Goal Type</th>
-                            <th>Target Category</th>
                             <th>Description</th>
                             <th>Current Amount Towards Goal</th>
                             <th>Target Amount</th>
@@ -192,19 +189,18 @@ const GoalPage = () => {
                             {profile && profile.goals.map((goal, index) => (
                                 <tr key={index}>
                                     <td>{goal.goal_type}</td>
-                                    <td>{goal.category}</td>
                                     <td>{goal.description}</td>
                                     <td>${goal.current_amount}</td>
                                     <td>${goal.target_amount}</td>
                                     <td>
                                         <progress
-                                        value={goal.curent_amount}
+                                        value={goal.current_amount}
                                         max={goal.target_amount}
                                         style={{ width: '100%' }}
                                         />
                                         <span>{goal.target_amount > 0 ? Math.round((goal.current_amount / goal.target_amount) * 100) : 0}%</span>
                                     </td>
-                                    <td>{goal.due_date ? convertDate(goal.due_date) : 'No Due Date'}</td>
+                                    <td>{goal.due_date ? new Date(goal.due_date).toLocaleDateString('en-US', {timeZone: 'UTC'}) : 'No Due Date'}</td>
                                 </tr>
                             ))}
                         </tbody>
