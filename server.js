@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const cors_options = {
     origin: 'http://localhost:3000',
@@ -353,22 +354,24 @@ app.post("/add-balance", (req, res) => {
         res.status(500).json({ message: 'Error retrieving user', error });
     });
 });
+
 app.post("/add-goal", (req, res) => {
     const {description, goal_type, target_amount, due_date} = req.body;
     user_email = req.cookies.user_email;
     if (!user_email) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
+    const new_goal = {
+        id: uuidv4(),
+        description,
+        goal_type,
+        current_amount: 0,
+        target_amount,
+        due_date
+};
     User.findOneAndUpdate({email: user_email}, {
         $push: {
-            "profile.goals": {
-                description,
-                goal_type,
-                current_amount: 0,
-                target_amount,
-                goal_progress: 0,
-                due_date
-            }
+            "profile.goals": new_goal
         }, 
     }, {new: true}).then((updated_user) => {
         if (!updated_user) return res.status(404).json({ message: 'User not found' });
@@ -377,6 +380,22 @@ app.post("/add-goal", (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Error adding goal', error });
     });
+});
+
+app.delete("/remove-goal", (req, res) => {
+    const {id} = req.body;
+    const user_email = req.cookies.user_email;
+    if (!user_email) return res.status(401).json({ message: 'Unauthorized' });
+    User.findOneAndUpdate({email: user_email}, {
+        $pull: {"profile.goals": {id}}
+    }, {
+        new: true}).then((updated_user) => {
+    if (!updated_user) return res.status(404).json({ message: 'User not found or goal does not exist.' });
+    res.status(200).json({ message: 'Goal removed successfully!' });
+}).catch((error) => {
+    console.error(error);
+    res.status(500).json({ message: 'Error removing goal', error });
+});
 });
 
 app.post("/update-profile", async (req, res) => {

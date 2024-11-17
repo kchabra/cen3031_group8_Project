@@ -20,7 +20,8 @@
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "mongoose": "^8.7.1",
-    "stream-http": "^3.2.0"
+    "stream-http": "^3.2.0",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "concurrently": "^9.0.1",

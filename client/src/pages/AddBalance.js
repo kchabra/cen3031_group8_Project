@@ -93,7 +93,7 @@ const AddBalance = () => {
         setError('Failed to process the request.');
     }
         if(selected_goal){
-            urlGoals = "http://localhost:5000/update-goals"
+            urlGoals = "http://localhost:5000/update-goals";
             try {
                 const response = await fetch(urlGoals, {
                     method: 'POST',
@@ -142,7 +142,6 @@ return (
                     const selected = e.target.value;
                     setSelectedBalance(selected);
                     setShowNewBalanceInput(selected === "add-new");
-                    //setShowGoalInput(selected !== "add-new");
                 }}
                 required
                 autoFocus
@@ -177,8 +176,6 @@ return (
                     required
                 />
             </div>)}
-
-
             {(selected_balance && !show_new_balance_input) && (<div>
                 <label htmlFor="goal-dropdown">Do you wish to apply the balance update to a goal? (Optional):</label>
                 <select

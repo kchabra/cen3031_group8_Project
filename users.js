@@ -59,6 +59,11 @@ const userSchema = new Schema({
             }
         }],
         goals: [{ //object array to hold user goals
+            id: {//To make sure are unique.
+                type: String,
+                required: true,
+                unique: true
+            },
             description: {//All goals should require a description
                 type: String,
                 required: true

@@ -80,6 +80,33 @@ const GoalPage = () => {
         }
     };
 
+    const removeGoal = async (id) => {
+        try {
+            const response = fetch("http://localhost:5000/remove-goal", {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({id})
+            });
+            if ((await response).ok) {
+                setProfile((prev_profile) => ({
+                    ...prev_profile,
+                    goals: prev_profile.goals.filter((goal) => goal.id !== id),
+                }));
+            }
+            else {
+                const data = (await response).json();
+                setError(data.message || "Error removing goal.");
+            }
+        }
+        catch (error) {
+            console.error("Error:", error);
+            setError("Failed to process the request.");
+        }
+    };
+
 const handleDueDateChange = (e) => {
     let value = e.target.value;
     value = value.replace(/[^0-9/]/g, '');
@@ -183,6 +210,7 @@ const handleDueDateChange = (e) => {
                             <th>Target Amount</th>
                             <th>Progress</th>
                             <th>Due Date</th>
+                            <th>Completed Goal</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -201,6 +229,7 @@ const handleDueDateChange = (e) => {
                                         <span>{goal.target_amount > 0 ? Math.round((goal.current_amount / goal.target_amount) * 100) : 0}%</span>
                                     </td>
                                     <td>{goal.due_date ? new Date(goal.due_date).toLocaleDateString('en-US', {timeZone: 'UTC'}) : 'No Due Date'}</td>
+                                    <td><button className="btn btn-danger" onClick={() => removeGoal(goal.id)}>Complete</button></td>
                                 </tr>
                             ))}
                         </tbody>
