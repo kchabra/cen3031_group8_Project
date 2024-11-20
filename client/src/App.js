@@ -9,6 +9,7 @@ import AddBalance from "./pages/AddBalance";
 import GoalPage from './pages/GoalPage';
 import UpdateProfile from './pages/UpdateProfile';
 import Footer from "./pages/Footer";
+import ExpenseChart from "./pages/ExpenseChart";
 
 
 const App = () => {
@@ -24,6 +25,7 @@ const App = () => {
       <Route path="/add-balance" element={<AddBalance/>}/>
       <Route path="/goals" element={<GoalPage/>}/>
       <Route path="/update-profile" element={<UpdateProfile/>}/>
+      <Route path="/expense-chart" element={<ExpenseChart />} />
           </Routes>
     <Footer/>
     </div>
